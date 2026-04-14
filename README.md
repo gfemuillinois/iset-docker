@@ -48,7 +48,7 @@ The `ISET/` folder is gitignored, so the proprietary source code won't be commit
 
 ```bash
 cd iset-docker
-docker build -t iset:latest .
+docker build --progress=plain -t iset:latest .
 ```
 
 That's it! The Dockerfile will automatically use the `ISET/` folder.
@@ -103,6 +103,22 @@ docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
 
 **Note:** Update [STUDENT_GUIDE.md](./STUDENT_GUIDE.md) with your actual GHCR image path.
 
+---
+## 📤 Publishing to Docker Hub
+
+After building the image locally, you can publish it to Docker Hub for distribution:
+
+### 1. Tag the image with your username at Docker Hub
+
+```bash
+docker tag iset:latest gfem1st/iset:latest
+```
+
+### 2. Push image to Docker Hub
+
+```bash
+docker push gfem1st/iset:latest
+```
 ---
 
 ## 🧠 How It Works

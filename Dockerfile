@@ -1,3 +1,7 @@
+# docker build --progress=plain -t iset:latest .
+# docker tag iset:latest gfem1st/iset:latest
+# docker push gfem1st/iset:latest
+
 # =========================
 # STAGE 1: MUMPS BUILDER
 # =========================
@@ -83,7 +87,7 @@ WORKDIR /app
 COPY ISET/ /app
 
 # ---- Link SciEng into SetSolver (required by CMake) ----
-RUN ln -s /app/SciEng /app/SetSolver/SciEng
+RUN ln -sfn /app/SciEng /app/SetSolver/SciEng
 
 # ---- Build ISET with MUMPS and CGAL ----
 RUN mkdir -p build && cd build && \
@@ -99,6 +103,8 @@ RUN mkdir -p build && cd build && \
       -DISET_USE_CGAL=ON \
       -DCGAL_DIR=${CGAL_DIR} \
       -DISET_MUMPS_ROOT=/opt/mumps \
+      -DMETIS_MUMPS_INCLUDE=/opt/mumps/include \
+      -DMETIS_MUMPS_LIB=/opt/mumps/lib/libmetis.so  \    
       -S /app/SetSolver \
       -B /app/build && \
     cmake --build /app/build -j$(nproc)

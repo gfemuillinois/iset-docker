@@ -53,6 +53,32 @@ docker build --progress=plain -t iset:latest .
 
 That's it! The Dockerfile will automatically use the `ISET/` folder.
 
+### Build with Support for amd64 and arm64
+
+```
+docker buildx build --platform linux/amd64,linux/arm64 --tag iset:latest \
+--progress=plain --file Dockerfile   .
+```
+
+---
+## 📤 Publishing ISET Image on Docker Hub
+
+After building the image locally, you can publish it on Docker Hub 
+[https://hub.docker.com/](https://hub.docker.com/)
+for distribution. Create a free Docker Hub account and follow these steps.
+
+### 1. Tag the image with your username on Docker Hub
+
+```
+docker tag iset:latest YOUR_DOCKER_HUB_NAME/iset:latest
+```
+
+### 2. Push to Docker Hub
+
+```
+docker push YOUR_DOCKER_HUB_NAME/iset:latest
+```
+
 ---
 
 ## 📤 Publishing to GitHub Container Registry (GHCR)
@@ -103,22 +129,6 @@ docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
 
 **Note:** Update [STUDENT_GUIDE.md](./STUDENT_GUIDE.md) with your actual GHCR image path.
 
----
-## 📤 Publishing to Docker Hub
-
-After building the image locally, you can publish it to Docker Hub for distribution:
-
-### 1. Tag the image with your username at Docker Hub
-
-```bash
-docker tag iset:latest gfem1st/iset:latest
-```
-
-### 2. Push image to Docker Hub
-
-```bash
-docker push gfem1st/iset:latest
-```
 ---
 
 ## 🧠 How It Works

@@ -1,6 +1,11 @@
-# docker build --progress=plain -t iset:latest .
-# docker tag iset:latest gfem1st/iset:latest
-# docker push gfem1st/iset:latest
+# How to build and publish image on Docker Hub
+
+# docker buildx build --platform linux/amd64,linux/arm64 --tag \
+#   iset:2026_09_11 --progress=plain --file Dockerfile   .
+
+# docker tag iset:2026_09_11 gfem1st/iset:2026_09_11
+
+# docker push gfem1st/iset:2026_09_11
 
 # =========================
 # STAGE 1: MUMPS BUILDER

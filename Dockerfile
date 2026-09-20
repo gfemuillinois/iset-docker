@@ -8,19 +8,23 @@
 FROM debian:trixie-slim AS builder-mumps
 
 ARG MUMPS_REPO=https://github.com/giavancini/mumps.git
+ARG MUMPS_COMMIT=771cb980d5ae178fb93840f992bf8c9787b7cabf
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ---- Build dependencies ----
 RUN apt-get update -qq && apt-get install -qq -y \
-        build-essential cmake git gfortran \
-        libopenblas-dev liblapack-dev libmetis-dev \
+        build-essential cmake git gfortran ninja-build \
+        libopenblas-openmp-dev liblapack-dev libmetis-dev \
         && rm -rf /var/lib/apt/lists/*
 
 # ---- Build MUMPS with OpenBLAS ----
 RUN mkdir -p /opt/mumps && \
     git clone --depth=1 "${MUMPS_REPO}" /tmp/mumps-src && \
+    git -C /tmp/mumps-src checkout --detach "${MUMPS_COMMIT}" && \
     cmake -S /tmp/mumps-src -B /tmp/mumps-src/build \
+        -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
         -DMUMPS_ENABLE_RPATH=on \
         -DBUILD_SINGLE=off \
         -DBUILD_DOUBLE=on \
@@ -34,10 +38,9 @@ RUN mkdir -p /opt/mumps && \
         -DMUMPS_find_SCALAPACK=false \
         -DMUMPS_scalapack=false \
         -DLAPACK_VENDOR=OpenBLAS \
-        -DCMAKE_INSTALL_PREFIX=/tmp/mumps-src/build/install && \
-    cmake --build /tmp/mumps-src/build && \
+        -DCMAKE_INSTALL_PREFIX=/opt/mumps && \
+    cmake --build /tmp/mumps-src/build --parallel && \
     cmake --install /tmp/mumps-src/build && \
-    cp -r /tmp/mumps-src/build/install/. /opt/mumps/ && \
     rm -rf /tmp/mumps-src
 
 # =========================
@@ -55,7 +58,7 @@ RUN apt-get update && apt-get install -y \
     git \
     tcl-dev \
     tcl \
-    libopenblas-dev \
+    libopenblas-openmp-dev \
     liblapack-dev \
     libmetis-dev \
     libboost-dev \
@@ -95,6 +98,7 @@ RUN mkdir -p build && cd build && \
       -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DISET_OPTIMIZATION_LEVEL=optimize \
+      -DISET_OPTM_FLAGS="-O3 -fopenmp" \
       -DISET_USE_MUMPS=ON \
       -DISET_USE_CHOLMOD=OFF \
       -DISET_USE_PARDISO_MKL=OFF \
@@ -103,11 +107,9 @@ RUN mkdir -p build && cd build && \
       -DISET_USE_CGAL=ON \
       -DCGAL_DIR=${CGAL_DIR} \
       -DISET_MUMPS_ROOT=/opt/mumps \
-      -DMETIS_MUMPS_INCLUDE=/opt/mumps/include \
-      -DMETIS_MUMPS_LIB=/opt/mumps/lib/libmetis.so  \    
       -S /app/SetSolver \
       -B /app/build && \
-    cmake --build /app/build -j$(nproc)
+    cmake --build /app/build --parallel
 
 # =========================
 # STAGE 3: RUNTIME
@@ -116,11 +118,11 @@ FROM debian:trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     libgfortran5 \
     libgomp1 \
     tcl \
-    libopenblas0 \
+    libopenblas0-openmp \
     liblapack3 \
     libmetis5 \
     libboost-thread1.83.0 \
@@ -133,9 +135,6 @@ WORKDIR /app
 
 # ---- MUMPS libraries ----
 COPY --from=builder-mumps /opt/mumps /opt/mumps
-
-# ---- CGAL headers (header-only library) ----
-COPY --from=builder /opt/cgal /opt/cgal
 
 # ---- ISET libraries (abaqus user subs) ----
 COPY --from=builder /app/build/lib/*.so* /usr/local/lib/

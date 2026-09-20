@@ -50,6 +50,9 @@ RUN mkdir -p /opt/mumps && \
     cmake --install /tmp/mumps-src/build && \
     rm -rf /tmp/mumps-src
 
+# Strip unneeded symbols from MUMPS shared libraries to reduce image size
+RUN strip --strip-unneeded /opt/mumps/lib/*.so*
+
 # =========================
 # STAGE 2: ISET BUILDER
 # =========================
@@ -120,6 +123,9 @@ RUN mkdir -p build && \
       -B /app/build && \
     cmake --build /app/build --parallel
 
+# Strip unneeded symbols from ISET shared libraries to reduce image size
+RUN strip --strip-unneeded /app/build/lib/*.so*
+
 # =========================
 # STAGE 3: RUNTIME
 # =========================
@@ -131,28 +137,47 @@ RUN apt-get update && \
     libgomp1 \
     tcl \
     libopenblas0-openmp \
-    liblapack3 \
     libmetis5 \
     libboost-thread1.83.0 \
     libgmp10 \
     libmpfr6 \
-    libvtk9.3 \
+    # libvtk9.3 \ # vtk adds ~600 MB to the image size, so we copy only the required shared libraries instead of installing the whole package
+    # The following libraries are required by VTK shared libraries
+    libdouble-conversion3 \
+    libexpat1 \
+    libtbb12 \
+    libxxhash0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 # ---- MUMPS libraries ----
-COPY --from=builder-mumps /opt/mumps /opt/mumps
+# Copy the shared libraries only to reduce the size of the final image.
+COPY --from=builder-mumps /opt/mumps/lib/*.so* /opt/mumps/lib/
 
 # ---- ISET libraries (abaqus user subs) ----
 COPY --from=builder /app/build/lib/*.so* /usr/local/lib/
+
+# ---- VTK libraries ----
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXML-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtksys-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXMLParser-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonExecutionModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonSystem-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMisc-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonTransforms-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkpugixml-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMath-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkloguru-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkkissfft-9.3.so.1 /usr/local/lib/
 
 # Register shared libraries
 RUN echo "/opt/mumps/lib" > /etc/ld.so.conf.d/mumps.conf && \
     echo "/usr/local/lib" > /etc/ld.so.conf.d/iset.conf && \
     ldconfig
-
-ENV CGAL_DIR=/opt/cgal
 
 # ---- Executable ----
 COPY --from=builder /app/build/projects/tclmain/tcliset .

@@ -13,10 +13,17 @@ ARG MUMPS_COMMIT=771cb980d5ae178fb93840f992bf8c9787b7cabf
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ---- Build dependencies ----
-RUN apt-get update -qq && apt-get install -qq -y \
-        build-essential cmake git gfortran ninja-build \
-        libopenblas-openmp-dev liblapack-dev libmetis-dev \
-        && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        cmake \
+        git \
+        gfortran \
+        ninja-build \
+        libopenblas-openmp-dev \
+        liblapack-dev \
+        libmetis-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # ---- Build MUMPS with OpenBLAS ----
 RUN mkdir -p /opt/mumps && \
@@ -50,25 +57,26 @@ FROM debian:trixie-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    gfortran \
-    cmake \
-    ninja-build \
-    git \
-    tcl-dev \
-    tcl \
-    libopenblas-openmp-dev \
-    liblapack-dev \
-    libmetis-dev \
-    libboost-dev \
-    libboost-thread-dev \
-    libgmp-dev \
-    libmpfr-dev \
-    libvtk9-dev \
-    wget \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        gfortran \
+        cmake \
+        ninja-build \
+        git \
+        tcl-dev \
+        tcl \
+        libopenblas-openmp-dev \
+        liblapack-dev \
+        libmetis-dev \
+        libboost-dev \
+        libboost-thread-dev \
+        libgmp-dev \
+        libmpfr-dev \
+        libvtk9-dev \
+        wget \
+        unzip && \
+    rm -rf /var/lib/apt/lists/*
 
 # ---- Import MUMPS artifacts ----
 COPY --from=builder-mumps /opt/mumps /opt/mumps
@@ -77,7 +85,7 @@ COPY --from=builder-mumps /opt/mumps /opt/mumps
 ARG CGAL_VERSION=5.6.2
 ARG CGAL_URL=https://github.com/CGAL/cgal/releases/download/v${CGAL_VERSION}/CGAL-${CGAL_VERSION}.zip
 
-RUN wget -q ${CGAL_URL} -O /tmp/cgal.zip && \
+RUN wget -q "${CGAL_URL}" -O /tmp/cgal.zip && \
     unzip -q /tmp/cgal.zip -d /opt && \
     mv /opt/CGAL-${CGAL_VERSION} /opt/cgal && \
     rm /tmp/cgal.zip
@@ -93,7 +101,8 @@ COPY ISET/ /app
 RUN ln -sfn /app/SciEng /app/SetSolver/SciEng
 
 # ---- Build ISET with MUMPS and CGAL ----
-RUN mkdir -p build && cd build && \
+RUN mkdir -p build && \
+    cd build && \
     cmake \
       -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
@@ -116,9 +125,8 @@ RUN mkdir -p build && cd build && \
 # =========================
 FROM debian:trixie-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install --no-install-recommends -y \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     libgfortran5 \
     libgomp1 \
     tcl \

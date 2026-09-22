@@ -75,7 +75,7 @@ RUN mkdir -p build && cd build && \
       -DISET_USE_MKL_BLAS=ON \
       -DISET_USE_METIS=OFF \
       -DMKL_ROOT=/opt/intel/oneapi/mkl/latest/ \
-      -DMKL_OMP_LIB=/opt/intel/oneapi/mkl/latest/lib/libmkl_intel_thread.so \
+      # -DMKL_OMP_LIB=/opt/intel/oneapi/mkl/latest/lib/libmkl_intel_thread.so \
       -S /app/SetSolver \
       -B /app/build && \
     cmake --build /app/build --parallel
@@ -110,12 +110,12 @@ WORKDIR /app
 # ---- Intel OneAPI MKL libraries ----
 # Copy only the MKL runtime libraries needed by Pardiso instead of installing the whole MKL package 
 # to reduce the size of the final image.
-COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_intel_lp64.so* /usr/local/lib/
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_gf_lp64.so* /usr/local/lib/
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_core.so* /usr/local/lib/
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_gnu_thread.so* /usr/local/lib/
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_avx.so* /usr/local/lib/
 COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_def.so* /usr/local/lib/
-COPY --from=builder /opt/intel/oneapi/compiler/latest/lib/libiomp5.so* /usr/local/lib/
+# COPY --from=builder /opt/intel/oneapi/compiler/latest/lib/libiomp5.so* /usr/local/lib/
 
 # ---- ISET libraries (abaqus user subs) ----
 COPY --from=builder /app/build/lib/*.so* /usr/local/lib/

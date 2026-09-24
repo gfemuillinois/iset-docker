@@ -1,11 +1,11 @@
 # How to build and publish image on Docker Hub
 
 # docker buildx build --platform linux/amd64,linux/arm64 --tag \
-#   iset:2026_09_11 --progress=plain --file Dockerfile.mumps   .
+#   iset:latest --progress=plain --file Dockerfile.mumps   .
 
-# docker tag iset:2026_09_11 gfem1st/iset:2026_09_11
+# docker tag iset:latest gfem1st/iset:latest
 
-# docker push gfem1st/iset:2026_09_11
+# docker push gfem1st/iset:latest
 
 # =========================
 # STAGE 1: MUMPS BUILDER
@@ -165,20 +165,24 @@ COPY --from=builder-mumps /opt/mumps/lib/*.so* /opt/mumps/lib/
 COPY --from=builder /app/build/lib/*.so* /usr/local/lib/
 
 # ---- VTK libraries ----
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXML-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonCore-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtksys-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXMLParser-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOCore-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonExecutionModel-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonSystem-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMisc-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonTransforms-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkpugixml-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMath-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkloguru-9.3.so.1 /usr/local/lib/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkkissfft-9.3.so.1 /usr/local/lib/
+# using /usr/lib/*-linux-gnu since these libraries are at /usr/lib/aarch64-linux-gnu/
+# and at /usr/lib/x86_64-linux-gnu/ in an arm64-linux and in an amd64-linux, respectively.
+#
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkIOXML-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonDataModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtksys-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkIOXMLParser-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkIOCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonExecutionModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonSystem-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonMisc-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonTransforms-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkpugixml-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkCommonMath-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkloguru-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/*-linux-gnu/libvtkkissfft-9.3.so.1 /usr/local/lib/
+
 
 # Register shared libraries
 RUN echo "/opt/mumps/lib" > /etc/ld.so.conf.d/mumps.conf && \

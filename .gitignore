@@ -1,3 +1,10 @@
 ISET/
 build/
 .vscode/settings.json
+README_tips_CAD.*
+*~
+*.save
+.DS_Store
+How_to_ISET_Docker.pdf
+README.pdf
+ISET_examples

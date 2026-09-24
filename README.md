@@ -9,12 +9,11 @@ This repository provides a Docker-based build environment for the **ISET** proje
 - The ISET source code is **NOT included** in this repository
 - You must provide the source code locally for building
 - The Docker image will:
-  - compile MUMPS from source (with OpenBLAS)
+  - set up your solver (MUMPS or PARDISO)
   - download and extract CGAL 5.6.2 library
-  - build ISET with MUMPS solver and CGAL support
+  - build ISET with CGAL support. You can pick the solver (MUMPS or PARDISO) by using the corresponding Dockerfile.
   - package the executable
   - generate a minimal runtime environment
-  - use **MUMPS** as the default solver (100% open source)
 
 ---
 
@@ -38,7 +37,8 @@ iset-docker/
 ├── ISET/              ← Place ISET source here
 │   ├── SetSolver/
 │   └── SciEng/
-├── Dockerfile
+├── Dockerfile.mumps
+├── Dockerfile.pardiso
 └── README.md
 ```
 
@@ -48,10 +48,41 @@ The `ISET/` folder is gitignored, so the proprietary source code won't be commit
 
 ```bash
 cd iset-docker
-docker build --progress=plain -t iset:latest .
+docker build --progress=plain -t iset:yyyy_mm_dd --file Dockerfile.mumps .
 ```
 
 That's it! The Dockerfile will automatically use the `ISET/` folder.
+You can also build with PARDISO solver:
+
+```bash
+docker build --progress=plain -t iset:yyyy_mm_dd --file Dockerfile.pardiso .
+```
+
+### Build with Support for amd64 and arm64
+
+```bash
+docker buildx build --platform linux/amd64,linux/arm64 --tag iset:yyyy_mm_dd \
+--progress=plain --file Dockerfile.mumps .
+```
+
+---
+## 📤 Publishing ISET Image on Docker Hub
+
+After building the image locally, you can publish it on Docker Hub 
+[https://hub.docker.com/](https://hub.docker.com/)
+for distribution. Create a free Docker Hub account and follow these steps.
+
+### 1. Tag the image with your username on Docker Hub
+
+```
+docker tag iset:yyyy_mm_dd YOUR_DOCKER_HUB_NAME/iset:yyyy_mm_dd
+```
+
+### 2. Push to Docker Hub
+
+```
+docker push YOUR_DOCKER_HUB_NAME/iset:yyyy_mm_dd
+```
 
 ---
 
@@ -71,19 +102,19 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-std
 ### 2. Tag the Image
 
 ```bash
-docker tag iset:latest ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
+docker tag iset:yyyy_mm_dd ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
 ```
 
 You can also add version tags:
 
 ```bash
-docker tag iset:latest ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
+docker tag iset:yyyy_mm_dd ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ```
 
 ### 3. Push to GHCR
 
 ```bash
-docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
+docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
 docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ```
 
@@ -98,38 +129,23 @@ docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ### 5. Students Can Now Pull
 
 ```bash
-docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
+docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
 ```
 
 **Note:** Update [STUDENT_GUIDE.md](./STUDENT_GUIDE.md) with your actual GHCR image path.
 
 ---
-## 📤 Publishing to Docker Hub
-
-After building the image locally, you can publish it to Docker Hub for distribution:
-
-### 1. Tag the image with your username at Docker Hub
-
-```bash
-docker tag iset:latest gfem1st/iset:latest
-```
-
-### 2. Push image to Docker Hub
-
-```bash
-docker push gfem1st/iset:latest
-```
----
 
 ## 🧠 How It Works
 
 - The `ISET/` folder (containing `SetSolver/` and `SciEng/`) is copied into the build
-- **Stage 1**: Compiles MUMPS solver from source with OpenBLAS
-- **Stage 2**: Downloads CGAL 5.6.2 and builds ISET with MUMPS + CGAL + VTK support
+- **Stage 1**: 
+    - `Dockerfile.mumps`: Compiles MUMPS solver from source with OpenBLAS
+    - `Dockerfile.pardiso`: Intel provides PARDISO solver through their oneAPI toolkit, therefore, there is no stage for compiling PARDISO from source. The oneAPI toolkit is downloaded and installed in the image.
+- **Stage 2**: Downloads CGAL 5.6.2, installs dependecies and builds ISET with CGAL + VTK support, using the corresponding solver (MUMPS for `Dockerfile.mumps` or PARDISO for `Dockerfile.pardiso`).
 - **Stage 3**: Creates minimal runtime with only:
     - the compiled executable (`tcliset`)
-    - required runtime libraries (MUMPS, OpenBLAS, LAPACK, CGAL, VTK, Boost, GMP, MPFR)
-    - TCL runtime
+    - required runtime libraries (OpenBLAS, LAPACK, Boost, GMP, MPFR, TCL)
 
 ---
 
@@ -144,13 +160,13 @@ See **[STUDENT_GUIDE.md](./STUDENT_GUIDE.md)** for a simple guide on how to use 
 After building locally:
 
 ```bash
-docker run -it iset:latest
+docker run -it iset:yyyy_mm_dd
 ```
 
 With your own files:
 
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace iset:latest /app/tcliset your_file.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace iset:yyyy_mm_dd /app/tcliset your_file.tcl
 ```
 
 ---
@@ -159,13 +175,13 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace iset:latest /app/tcliset 
 
 ### 1. Source Code is Required for Building
 
-This repository does NOT include ISET source code in git.
+This repository does NOT include ISET source code in `git`.
 
 **You must place the ISET source in the `ISET/` folder:**
 
 ```bash
 cd iset-docker
-# Copy or symlink your ISET source into ISET/
+# Copy your ISET source into ISET/
 cp -r /path/to/your/ISET ./ISET
 # Or create a symlink
 ln -s /path/to/your/ISET ./ISET
@@ -173,7 +189,7 @@ ln -s /path/to/your/ISET ./ISET
 
 Then build:
 ```bash
-docker build -t iset:latest .
+docker build -t iset:yyyy_mm_dd .
 ```
 
 ### 2. No Source Code in Final Image
@@ -185,24 +201,31 @@ The final Docker image:
 
 ### 3. Solver Configuration
 
-The default build uses:
+The `Dockerfile.mumps` uses:
 - **MUMPS** (compiled from source)
 - **OpenBLAS** for BLAS/LAPACK operations
 - **CGAL 5.6.2** (Computational Geometry Algorithms Library)
 - 100% open source stack
 
+The `Dockerfile.pardiso` uses:
+- **oneMKL** package provided by Intel oneAPI toolkit (includes PARDISO solver)
+- **MKL BLAS** for BLAS/LAPACK operations
+- **CGAL 5.6.2** (Computational Geometry Algorithms Library)
+- This version is **not fully open source** due to Intel's licensing of oneAPI.
+
 ### 4. Image Size
 
-The image is optimized to include only:
-- MUMPS runtime libraries (~50 MB)
-- OpenBLAS (~10 MB)
-- CGAL headers and dependencies (~100 MB)
-- VTK libraries (~150 MB)
-- Boost, GMP, MPFR libraries
-- TCL runtime
-- ISET executable
+The image is carefully optimized to include only what `tcliset` needs to run:
 
-Expected size: ~500-700 MB (much smaller than with Intel MKL)
+    - VTK libraries
+    - Boost, GMP, MPFR libraries
+    - TCL runtime
+    - ISET executable
+
+The MUMPS version includes also includes OpenBLAS with OpenMP support, while the PARDISO version includes Intel oneAPI runtime libraries.
+The expeted final sizes of the images are:
+- **MUMPS**: ~200 MB
+- **PARDISO**: ~434 MB
 
 ---
 

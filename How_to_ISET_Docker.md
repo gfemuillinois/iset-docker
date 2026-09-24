@@ -18,7 +18,7 @@ Test your Docker installation:
 
 I will omit ```sudo``` hereafter.
 
-> ⚠️ **Note for Windows Users** You must install ```WSL``` to use Docker on Windows. See Section **Enabling WSL** at the end of this document.
+> ⚠️ **Note for Windows Users** You must install ```WSL``` to use Docker on Windows. See Section [**Enabling WSL**](#enabling-wsl-on-windows) at the end of this document.
 
 ---
 
@@ -188,33 +188,33 @@ wsl --install Ubuntu
 ```
 Wait for the process to be completed and close the terminal.
 
-# Setting up your Linux machine
+6. Once WSL is enabled, you need to set up your Linux machine:
 
-1. **Start your Linux system**: Find WSL or your distribution name (Ubuntu by default) in the Start menu. Click on it to start your Linux environment.
+  1. **Start your Linux system**: Find WSL or your distribution name (Ubuntu by default) in the Start menu. Click on it to start your Linux environment.
 
-2. **Create your user**: The WSL assistant will prompt you for the username. It can be anything you prefer, as long as it does not contain spaces or special characters.
-```
-Provisioning the new WSL instance Ubuntu
-This might take a while...
-Create a default Unix user account: yourname
-```
+  2. **Create your user**: The WSL assistant will prompt you for the username. It can be anything you prefer, as long as it does not contain spaces or special characters.
+  ```
+  Provisioning the new WSL instance Ubuntu
+  This might take a while...
+  Create a default Unix user account: yourname
+  ```
 
-Enter your username and press Enter. You will also need to provide and confirm a password.
-You will only need to go over this process once.
+  Enter your username and press Enter. You will also need to provide and confirm a password.
+  You will only need to go over this process once.
 
-3. **Welcome message**: You should see a welcome message similar to:
-```
-Welcome to Ubuntu 24.04.2 LTS (GNU/Linux 5.15.167.4-microsoft-standard-WSL2 x86_64)
+  3. **Welcome message**: You should see a welcome message similar to:
+  ```
+  Welcome to Ubuntu 24.04.2 LTS (GNU/Linux 5.15.167.4-microsoft-standard-WSL2 x86_64)
 
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
+  * Documentation:  https://help.ubuntu.com
+  * Management:     https://landscape.canonical.com
+  * Support:        https://ubuntu.com/pro
 
- System information as of Mon Mar 10 10:43:13 CDT 2025
+  System information as of Mon Mar 10 10:43:13 CDT 2025
 
-  System load:  0.0                 Processes:             31
-  Usage of /:   0.1% of 1006.85GB   Users logged in:       0
-  Memory usage: 1%                  IPv4 address for eth0: 172.17.249.45
-  Swap usage:   0%
-```
+    System load:  0.0                 Processes:             31
+    Usage of /:   0.1% of 1006.85GB   Users logged in:       0
+    Memory usage: 1%                  IPv4 address for eth0: 172.17.249.45
+    Swap usage:   0%
+  ```
 

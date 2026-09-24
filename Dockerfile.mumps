@@ -1,7 +1,7 @@
 # How to build and publish image on Docker Hub
 
 # docker buildx build --platform linux/amd64,linux/arm64 --tag \
-#   iset:2026_09_11 --progress=plain --file Dockerfile   .
+#   iset:2026_09_11 --progress=plain --file Dockerfile.mumps   .
 
 # docker tag iset:2026_09_11 gfem1st/iset:2026_09_11
 
@@ -114,8 +114,9 @@ RUN mkdir -p build && \
     cmake \
       -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="-O3" \
       -DISET_OPTIMIZATION_LEVEL=optimize \
-      -DISET_OPTM_FLAGS="-O3 -fopenmp" \
+      -DISET_OPTM_FLAGS="-fopenmp" \
       -DISET_USE_MUMPS=ON \
       -DISET_USE_CHOLMOD=OFF \
       -DISET_USE_PARDISO_MKL=OFF \

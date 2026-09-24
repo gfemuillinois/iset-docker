@@ -18,7 +18,7 @@ Test your Docker installation:
 
 I will omit ```sudo``` hereafter.
 
-> ⚠️ **Note for Windows Users** You must install ```WSL``` to use Docker on Windows. See Section **Enabling WSL** at the end of this document.
+> ⚠️ **Note for Windows Users** You must install ```WSL``` to use Docker on Windows. See Section [**Enabling WSL**](#enabling-wsl-on-windows) at the end of this document.
 
 ---
 
@@ -27,16 +27,18 @@ I will omit ```sudo``` hereafter.
 ### 1️⃣ Pull the ISET Image
 
 ```bash
-docker pull gfem1st/iset:yyy_mm_dd
+docker pull gfem1st/iset:latest
 ```
 
 ```docker image ls```
 
-The last command should list ```gfem1st/iset:yyy_mm_dd``` in the ```IMAGE``` column.
+The last command should list ```gfem1st/iset:latest``` in the ```IMAGE``` column.
 This image should also be listed in your **Docker Desktop app**.
 
+<!--
 > ⚠️ **Note**: C.A. Duarte will provide the correct image name.
 > The latest version, as of 09/11/2026, is ```gfem1st/iset:2026_09_11```. Thus, replace ```gfem1st/iset:yyy_mm_dd``` with ```gfem1st/iset:2026_09_11``` or with the name of a newer image.
+-->
 
 ---
 
@@ -50,16 +52,16 @@ Copy ISET files to this folder. You can run ISET from any folder on your system.
 
 ---
 
-### 3️⃣ Run the Container
+### 3️⃣ Run the tcliset app in the Container
 
 **Option A - Direct Execution:**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset your_file.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset your_file.tcl
 ```
 
 **Option B - Interactive Mode (Terminal):**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /bin/bash
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /bin/bash
 ```
 
 Inside the container, run:
@@ -84,7 +86,7 @@ Double_torsion.crf
 <!--
 **Option C - ISET Interactive Mode:**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset
 ```
 -->
 
@@ -110,7 +112,7 @@ puts "Hello, ISET with MUMPS!"
 2. Execute:
 
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset test.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset test.tcl
 ```
 
 ---
@@ -121,12 +123,12 @@ Create an alias to avoid typing the full command every time:
 
 **Linux/Mac (add to `~/.bashrc` or `~/.zshrc`):**
 ```
-alias iset-docker='docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset'
+alias iset-docker='docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset'
 ```
 
 **Windows PowerShell (add to profile):**
 ```powershell
-function iset-docker { docker run -it --rm -v ${PWD}:/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset $args }
+function iset-docker { docker run -it --rm -v ${PWD}:/workspace -w /workspace gfem1st/iset:latest /app/tcliset $args }
 ```
 
 Then simply use:
@@ -188,33 +190,33 @@ wsl --install Ubuntu
 ```
 Wait for the process to be completed and close the terminal.
 
-# Setting up your Linux machine
+6. Once WSL is enabled, you need to set up your Linux machine:
 
-1. **Start your Linux system**: Find WSL or your distribution name (Ubuntu by default) in the Start menu. Click on it to start your Linux environment.
+  1. **Start your Linux system**: Find WSL or your distribution name (Ubuntu by default) in the Start menu. Click on it to start your Linux environment.
 
-2. **Create your user**: The WSL assistant will prompt you for the username. It can be anything you prefer, as long as it does not contain spaces or special characters.
-```
-Provisioning the new WSL instance Ubuntu
-This might take a while...
-Create a default Unix user account: yourname
-```
+  2. **Create your user**: The WSL assistant will prompt you for the username. It can be anything you prefer, as long as it does not contain spaces or special characters.
+  ```
+  Provisioning the new WSL instance Ubuntu
+  This might take a while...
+  Create a default Unix user account: yourname
+  ```
 
-Enter your username and press Enter. You will also need to provide and confirm a password.
-You will only need to go over this process once.
+  Enter your username and press Enter. You will also need to provide and confirm a password.
+  You will only need to go over this process once.
 
-3. **Welcome message**: You should see a welcome message similar to:
-```
-Welcome to Ubuntu 24.04.2 LTS (GNU/Linux 5.15.167.4-microsoft-standard-WSL2 x86_64)
+  3. **Welcome message**: You should see a welcome message similar to:
+  ```
+  Welcome to Ubuntu 24.04.2 LTS (GNU/Linux 5.15.167.4-microsoft-standard-WSL2 x86_64)
 
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
+  * Documentation:  https://help.ubuntu.com
+  * Management:     https://landscape.canonical.com
+  * Support:        https://ubuntu.com/pro
 
- System information as of Mon Mar 10 10:43:13 CDT 2025
+  System information as of Mon Mar 10 10:43:13 CDT 2025
 
-  System load:  0.0                 Processes:             31
-  Usage of /:   0.1% of 1006.85GB   Users logged in:       0
-  Memory usage: 1%                  IPv4 address for eth0: 172.17.249.45
-  Swap usage:   0%
-```
+    System load:  0.0                 Processes:             31
+    Usage of /:   0.1% of 1006.85GB   Users logged in:       0
+    Memory usage: 1%                  IPv4 address for eth0: 172.17.249.45
+    Swap usage:   0%
+  ```
 

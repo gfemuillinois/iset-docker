@@ -67,6 +67,7 @@ RUN mkdir -p build && cd build && \
       -DISET_USE_CGAL=ON \
       -DCGAL_DIR=${CGAL_DIR} \
       -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="-O3" \
       -DISET_OPTIMIZATION_LEVEL=optimize \
       -DISET_OPTM_FLAGS="-O3 -fopenmp" \
       -DISET_USE_MUMPS=OFF \

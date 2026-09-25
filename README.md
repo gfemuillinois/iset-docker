@@ -48,20 +48,20 @@ The `ISET/` folder is gitignored, so the proprietary source code won't be commit
 
 ```bash
 cd iset-docker
-docker build --progress=plain -t iset:yyyy_mm_dd --file Dockerfile.mumps .
+docker build --progress=plain -t iset:latest --file Dockerfile.mumps .
 ```
 
 That's it! The Dockerfile will automatically use the `ISET/` folder.
 You can also build with PARDISO solver:
 
 ```bash
-docker build --progress=plain -t iset:yyyy_mm_dd --file Dockerfile.pardiso .
+docker build --progress=plain -t iset:latest --file Dockerfile.pardiso .
 ```
 
 ### Build with Support for amd64 and arm64
 
 ```bash
-docker buildx build --platform linux/amd64,linux/arm64 --tag iset:yyyy_mm_dd \
+docker buildx build --platform linux/amd64,linux/arm64 --tag iset:latest \
 --progress=plain --file Dockerfile.mumps .
 ```
 
@@ -75,13 +75,13 @@ for distribution. Create a free Docker Hub account and follow these steps.
 ### 1. Tag the image with your username on Docker Hub
 
 ```
-docker tag iset:yyyy_mm_dd YOUR_DOCKER_HUB_NAME/iset:yyyy_mm_dd
+docker tag iset:latest YOUR_DOCKER_HUB_NAME/iset:latest
 ```
 
 ### 2. Push to Docker Hub
 
 ```
-docker push YOUR_DOCKER_HUB_NAME/iset:yyyy_mm_dd
+docker push YOUR_DOCKER_HUB_NAME/iset:latest
 ```
 
 ---
@@ -102,19 +102,19 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-std
 ### 2. Tag the Image
 
 ```bash
-docker tag iset:yyyy_mm_dd ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
+docker tag iset:latest ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
 ```
 
 You can also add version tags:
 
 ```bash
-docker tag iset:yyyy_mm_dd ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
+docker tag iset:latest ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ```
 
 ### 3. Push to GHCR
 
 ```bash
-docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
+docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
 docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ```
 
@@ -129,7 +129,7 @@ docker push ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:v1.0.0
 ### 5. Students Can Now Pull
 
 ```bash
-docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:yyyy_mm_dd
+docker pull ghcr.io/YOUR_GITHUB_USERNAME/iset-docker:latest
 ```
 
 **Note:** Update [STUDENT_GUIDE.md](./STUDENT_GUIDE.md) with your actual GHCR image path.
@@ -160,13 +160,13 @@ See **[STUDENT_GUIDE.md](./STUDENT_GUIDE.md)** for a simple guide on how to use 
 After building locally:
 
 ```bash
-docker run -it iset:yyyy_mm_dd
+docker run -it iset:latest
 ```
 
 With your own files:
 
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace iset:yyyy_mm_dd /app/tcliset your_file.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace iset:latest /app/tcliset your_file.tcl
 ```
 
 ---
@@ -189,7 +189,7 @@ ln -s /path/to/your/ISET ./ISET
 
 Then build:
 ```bash
-docker build -t iset:yyyy_mm_dd .
+docker build -t iset:latest .
 ```
 
 ### 2. No Source Code in Final Image
@@ -257,6 +257,6 @@ This will show if any shared libraries are missing.
 
 ---
 
-## 👨‍💻 Maintainer
+## 👨‍💻 Maintainers
 
-LabMeC / ISET Dockerization effort
+LabMeC / ISET Dockerization effort, Neimar da Silveira, and Armando Duarte. 

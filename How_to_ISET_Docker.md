@@ -27,16 +27,18 @@ I will omit ```sudo``` hereafter.
 ### 1️⃣ Pull the ISET Image
 
 ```bash
-docker pull gfem1st/iset:yyy_mm_dd
+docker pull gfem1st/iset:latest
 ```
 
 ```docker image ls```
 
-The last command should list ```gfem1st/iset:yyy_mm_dd``` in the ```IMAGE``` column.
+The last command should list ```gfem1st/iset:latest``` in the ```IMAGE``` column.
 This image should also be listed in your **Docker Desktop app**.
 
+<!--
 > ⚠️ **Note**: C.A. Duarte will provide the correct image name.
 > The latest version, as of 09/11/2026, is ```gfem1st/iset:2026_09_11```. Thus, replace ```gfem1st/iset:yyy_mm_dd``` with ```gfem1st/iset:2026_09_11``` or with the name of a newer image.
+-->
 
 ---
 
@@ -50,16 +52,16 @@ Copy ISET files to this folder. You can run ISET from any folder on your system.
 
 ---
 
-### 3️⃣ Run the Container
+### 3️⃣ Run the tcliset app in the Container
 
 **Option A - Direct Execution:**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset your_file.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset your_file.tcl
 ```
 
 **Option B - Interactive Mode (Terminal):**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /bin/bash
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /bin/bash
 ```
 
 Inside the container, run:
@@ -84,7 +86,7 @@ Double_torsion.crf
 <!--
 **Option C - ISET Interactive Mode:**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset
 ```
 -->
 
@@ -110,7 +112,7 @@ puts "Hello, ISET with MUMPS!"
 2. Execute:
 
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset test.tcl
+docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset test.tcl
 ```
 
 ---
@@ -121,12 +123,12 @@ Create an alias to avoid typing the full command every time:
 
 **Linux/Mac (add to `~/.bashrc` or `~/.zshrc`):**
 ```
-alias iset-docker='docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset'
+alias iset-docker='docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset'
 ```
 
 **Windows PowerShell (add to profile):**
 ```powershell
-function iset-docker { docker run -it --rm -v ${PWD}:/workspace -w /workspace gfem1st/iset:yyy_mm_dd /app/tcliset $args }
+function iset-docker { docker run -it --rm -v ${PWD}:/workspace -w /workspace gfem1st/iset:latest /app/tcliset $args }
 ```
 
 Then simply use:

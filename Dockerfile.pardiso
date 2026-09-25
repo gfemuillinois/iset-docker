@@ -1,0 +1,152 @@
+# docker  buildx build --platform linux/amd64 --progress=plain -t iset:pardiso_latest --file Dockerfile.pardiso .
+# docker tag iset:pardiso_latest gfem1st/iset:pardiso_latest
+# docker push gfem1st/iset:pardiso_latest
+
+# =========================
+# STAGE 1: ISET BUILDER
+# =========================
+FROM debian:trixie-slim AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gfortran \
+    cmake \
+    ninja-build \
+    git \
+    tcl-dev \
+    tcl \
+    liblapack-dev \
+    libmetis-dev \
+    libboost-dev \
+    libboost-thread-dev \
+    libgmp-dev \
+    libmpfr-dev \
+    libvtk9-dev \
+    wget \
+    gnupg \
+    ca-certificates \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- Download and extract CGAL ----
+ARG CGAL_VERSION=5.6.2
+ARG CGAL_URL=https://github.com/CGAL/cgal/releases/download/v${CGAL_VERSION}/CGAL-${CGAL_VERSION}.zip
+
+RUN wget -q "${CGAL_URL}" -O /tmp/cgal.zip && \
+    unzip -q /tmp/cgal.zip -d /opt && \
+    mv /opt/CGAL-${CGAL_VERSION} /opt/cgal && \
+    rm /tmp/cgal.zip
+
+ENV CGAL_DIR=/opt/cgal
+
+# ---- Install Intel OneAPI MKL devel libraries ----
+ARG INTEL_ONEAPI_REPO=https://apt.repos.intel.com/oneapi
+ARG INTEL_ONEAPI_GPG_KEY=https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+
+RUN wget -O- "${INTEL_ONEAPI_GPG_KEY}" | \
+    gpg --dearmor > /usr/share/keyrings/oneapi-archive-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] ${INTEL_ONEAPI_REPO} all main" > /etc/apt/sources.list.d/oneAPI.list && \
+    apt-get update && \
+    apt-get install -y intel-oneapi-mkl-devel && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# IMPORTANT: ISET source must be in ISET/ folder in the repository
+COPY ISET/ /app
+
+# ---- Link SciEng into SetSolver (required by CMake) ----
+RUN ln -sfn /app/SciEng /app/SetSolver/SciEng
+
+# ---- Build ISET with Pardiso and CGAL ----
+RUN mkdir -p build && cd build && \
+    cmake \
+      -G Ninja \
+      -DISET_USE_CGAL=ON \
+      -DCGAL_DIR=${CGAL_DIR} \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_CXX_FLAGS="-O3" \
+      -DISET_OPTIMIZATION_LEVEL=optimize \
+      -DISET_OPTM_FLAGS="-O3 -fopenmp" \
+      -DISET_USE_MUMPS=OFF \
+      -DISET_USE_CHOLMOD=OFF \
+      -DISET_USE_PARDISO_MKL=ON \
+      -DISET_USE_MKL_BLAS=ON \
+      -DISET_USE_METIS=OFF \
+      -DMKL_ROOT=/opt/intel/oneapi/mkl/latest/ \
+      # -DMKL_OMP_LIB=/opt/intel/oneapi/mkl/latest/lib/libmkl_intel_thread.so \
+      -S /app/SetSolver \
+      -B /app/build && \
+    cmake --build /app/build --parallel
+
+# Strip unneeded symbols from ISET shared libraries to reduce image size
+RUN strip --strip-unneeded /app/build/lib/*.so*
+
+# =========================
+# STAGE 2: RUNTIME
+# =========================
+FROM debian:trixie-slim
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    libgfortran5 \
+    libgomp1 \
+    tcl \
+    libmetis5 \
+    libboost-thread1.83.0 \
+    libgmp10 \
+    libmpfr6 \
+    # vtk adds ~600 MB to the image size, so we copy only the required shared libraries instead of 
+    # installing the whole package and install the required dependencies for VTK shared libraries
+    # libvtk9.3 \  
+    libdouble-conversion3 \
+    libexpat1 \
+    libtbb12 \
+    libxxhash0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# ---- Intel OneAPI MKL libraries ----
+# Copy only the MKL runtime libraries needed by Pardiso instead of installing the whole MKL package 
+# to reduce the size of the final image.
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_gf_lp64.so* /usr/local/lib/
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_core.so* /usr/local/lib/
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_gnu_thread.so* /usr/local/lib/
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_avx.so* /usr/local/lib/
+COPY --from=builder /opt/intel/oneapi/mkl/latest/lib/libmkl_def.so* /usr/local/lib/
+# COPY --from=builder /opt/intel/oneapi/compiler/latest/lib/libiomp5.so* /usr/local/lib/
+
+# ---- ISET libraries (abaqus user subs) ----
+COPY --from=builder /app/build/lib/*.so* /usr/local/lib/
+
+# ---- VTK libraries ----
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXML-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtksys-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOXMLParser-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkIOCore-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonExecutionModel-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonSystem-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMisc-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonTransforms-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkpugixml-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkCommonMath-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkloguru-9.3.so.1 /usr/local/lib/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libvtkkissfft-9.3.so.1 /usr/local/lib/
+
+# Register shared libraries
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/iset.conf && \
+    ldconfig
+
+# ---- Executable ----
+COPY --from=builder /app/build/projects/tclmain/tcliset .
+
+# ---- Auxiliary files ----
+COPY --from=builder /app/build/projects/tclmain/*.tcl .
+COPY --from=builder /app/build/projects/tclmain/*.grf .
+COPY --from=builder /app/build/projects/tclmain/*.crf .
+
+CMD ["./tcliset"]

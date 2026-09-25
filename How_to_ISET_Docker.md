@@ -35,6 +35,15 @@ docker pull gfem1st/iset:latest
 The last command should list ```gfem1st/iset:latest``` in the ```IMAGE``` column.
 This image should also be listed in your **Docker Desktop app**.
 
+> ⚠️ **Note**: ```gfem1st/iset:latest``` uses the MUMPS sparse solver. If you are a Linux or Windows user, you can also use an image with ISET compiled with the Pardiso solver:
+> 
+> ```bash
+docker pull gfem1st/iset:pardiso_latest
+```
+> In that case, replace hereafter ```gfem1st/iset:latest``` with ```gfem1st/iset:pardiso_latest```. 
+
+>The Pardiso solver is required for solving multiple local problems in parallel in a GFEMgl analysis or for solving multiple sub-models in parallel in a GFEM3 analysis.
+
 <!--
 > ⚠️ **Note**: C.A. Duarte will provide the correct image name.
 > The latest version, as of 09/11/2026, is ```gfem1st/iset:2026_09_11```. Thus, replace ```gfem1st/iset:yyy_mm_dd``` with ```gfem1st/iset:2026_09_11``` or with the name of a newer image.

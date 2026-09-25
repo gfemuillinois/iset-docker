@@ -1,6 +1,6 @@
-# docker build --progress=plain -t iset:latest .
-# docker tag iset:latest gfem1st/iset:latest
-# docker push gfem1st/iset:latest
+# docker  buildx build --platform linux/amd64 --progress=plain -t iset:pardiso_latest --file Dockerfile.pardiso .
+# docker tag iset:pardiso_latest gfem1st/iset:pardiso_latest
+# docker push gfem1st/iset:pardiso_latest
 
 # =========================
 # STAGE 1: ISET BUILDER

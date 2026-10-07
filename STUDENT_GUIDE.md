@@ -35,7 +35,7 @@ cd my-iset-project
 
 **Option A - Interactive Mode (Terminal):**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /bin/bash
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /bin/bash
 ```
 
 Inside the container, run:
@@ -45,12 +45,12 @@ Inside the container, run:
 
 **Option B - Direct Execution:**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset your_file.tcl
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset your_file.tcl
 ```
 
 **Option C - ISET Interactive Mode:**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset
 ```
 
 ---
@@ -59,7 +59,7 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-doc
 
 - `-it` → Interactive mode (allows typing commands)
 - `--rm` → Removes container on exit (no leftover containers)
-- `-v $(pwd):/workspace` → Mounts your current directory into the container
+- `-v "$(pwd):/workspace"` → Mounts your current directory into the container
 - `-w /workspace` → Sets working directory inside the container
 - `/app/tcliset` → Path to ISET executable
 
@@ -74,7 +74,7 @@ puts "Hello, ISET with MUMPS!"
 
 2. Execute:
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset test.tcl
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset test.tcl
 ```
 
 ---
@@ -85,12 +85,12 @@ Create an alias to avoid typing the full command every time:
 
 **Linux/Mac (add to `~/.bashrc` or `~/.zshrc`):**
 ```bash
-alias iset='docker run -it --rm -v $(pwd):/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset'
+alias iset='docker run -it --rm -v "$(pwd):/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset'
 ```
 
 **Windows PowerShell (add to profile):**
 ```powershell
-function iset { docker run -it --rm -v ${PWD}:/workspace -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset $args }
+function iset { docker run -it --rm -v "${PWD}:/workspace" -w /workspace ghcr.io/USERNAME/iset-docker:latest /app/tcliset $args }
 ```
 
 Then simply use:

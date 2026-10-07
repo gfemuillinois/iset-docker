@@ -213,7 +213,13 @@ The `Dockerfile.pardiso` uses:
 - **CGAL 5.6.2** (Computational Geometry Algorithms Library)
 - This version is **not fully open source** due to Intel's licensing of oneAPI.
 
-### 4. Image Size
+### 4. `.` in PATH
+
+The final image includes `.` (the current working directory) in the `PATH` environment variable, because some ISET features require it to locate helper scripts and modules.
+
+**Security note:** including `.` in `PATH` means the shell will also look in the current directory for executables. To reduce risk, `.` is appended at the *end* of `PATH`, so standard system commands take precedence. Even so, we recommend avoiding interactive shells inside the container when the working directory contains files from untrusted sources (e.g., downloaded archives).
+
+### 5. Image Size
 
 The image is carefully optimized to include only what `tcliset` needs to run:
 

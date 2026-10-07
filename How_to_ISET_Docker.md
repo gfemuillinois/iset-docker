@@ -65,12 +65,12 @@ Copy ISET files to this folder. You can run ISET from any folder on your system.
 
 **Option A - Direct Execution:**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset your_file.tcl
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace gfem1st/iset:latest /app/tcliset your_file.tcl
 ```
 
 **Option B - Interactive Mode (Terminal):**
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /bin/bash
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace gfem1st/iset:latest /bin/bash
 ```
 
 Inside the container, run:
@@ -95,7 +95,7 @@ Double_torsion.crf
 <!--
 **Option C - ISET Interactive Mode:**
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace gfem1st/iset:latest /app/tcliset
 ```
 -->
 
@@ -105,7 +105,7 @@ docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/
 
 - `-it` → Interactive mode (allows typing commands)
 - `--rm` → Removes container on exit (no leftover containers)
-- `-v $(pwd):/workspace` → Mounts your current directory into the container
+- `-v "$(pwd):/workspace"` → Mounts your current directory into the container
 - `-w /workspace` → Sets working directory inside the container
 - `/app/tcliset` → Path to ISET executable in the container
 
@@ -121,7 +121,7 @@ puts "Hello, ISET with MUMPS!"
 2. Execute:
 
 ```
-docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset test.tcl
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace gfem1st/iset:latest /app/tcliset test.tcl
 ```
 
 ---
@@ -132,12 +132,12 @@ Create an alias to avoid typing the full command every time:
 
 **Linux/Mac (add to `~/.bashrc` or `~/.zshrc`):**
 ```
-alias iset-docker='docker run -it --rm -v $(pwd):/workspace -w /workspace gfem1st/iset:latest /app/tcliset'
+alias iset-docker='docker run -it --rm -v "$(pwd):/workspace" -w /workspace gfem1st/iset:latest /app/tcliset'
 ```
 
 **Windows PowerShell (add to profile):**
 ```powershell
-function iset-docker { docker run -it --rm -v ${PWD}:/workspace -w /workspace gfem1st/iset:latest /app/tcliset $args }
+function iset-docker { docker run -it --rm -v "${PWD}:/workspace" -w /workspace gfem1st/iset:latest /app/tcliset $args }
 ```
 
 Then simply use:

@@ -166,7 +166,7 @@ docker run -it iset:latest
 With your own files:
 
 ```bash
-docker run -it --rm -v $(pwd):/workspace -w /workspace iset:latest /app/tcliset your_file.tcl
+docker run -it --rm -v "$(pwd):/workspace" -w /workspace iset:latest /app/tcliset your_file.tcl
 ```
 
 ---

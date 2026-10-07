@@ -149,4 +149,8 @@ COPY --from=builder /app/build/projects/tclmain/*.tcl .
 COPY --from=builder /app/build/projects/tclmain/*.grf .
 COPY --from=builder /app/build/projects/tclmain/*.crf .
 
+# IGL requires `.` in PATH
+# NOTE: we are not creating a non-root user. This means any executable in the working directory can run with sudo privilegies. It would be better to either create a non-root user or change ISET code to drop `.` from PATH entirely.
+ENV PATH="${PATH}:."
+
 CMD ["./tcliset"]
